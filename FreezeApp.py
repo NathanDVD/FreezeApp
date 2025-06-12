@@ -87,6 +87,7 @@ def toggle_pause():
             resume_process_threads(proc.pid)
             paused_pids.remove(proc.pid)
 
+
 #Hotkey setup
 keyboard.add_hotkey('f1', toggle_pause)
 
@@ -94,4 +95,22 @@ print("To change the process to freeze, either edit the config file to add the p
 print(f"Monitoring for process: {process_name}")
 print("Press F1 to pause/resume process, F3 to exit.")
 
-keyboard.wait('f3')
+
+def resume_all_paused_processes():
+    for pid in list(paused_pids):
+        try:
+            proc = psutil.Process(pid)
+            print(f"[EXIT] Resuming {proc.name()} (PID {pid})")
+            resume_process_threads(pid)
+            paused_pids.remove(pid)
+        except psutil.NoSuchProcess:
+            pass
+
+def exit_program():
+    print("\nExiting... Resuming paused processes.")
+    resume_all_paused_processes()
+    time.sleep(0.5)
+    os._exit(0)
+
+keyboard.add_hotkey('f3', exit_program)
+keyboard.wait()
